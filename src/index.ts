@@ -44,7 +44,7 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 				.limit(size)
 				.offset(offset);
 			const qb = (callback(q)) || q;
-			const data = await qb;
+			const data = (await qb) as T[];
 			const total = await this.count((qb) => {
 				qb.where(query);
 				if (!keywords) {
