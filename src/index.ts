@@ -1,12 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Callback, QueryBuilder, Transaction } from '@mmstudio/an000049';
 import wrapFilter from '@mmstudio/an000059';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T>) {
 	type Data = Partial<T>;
 	return {
