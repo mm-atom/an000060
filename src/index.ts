@@ -43,8 +43,7 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 			const q = tb.where(query)
 				.limit(size)
 				.offset(offset);
-			// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-			const qb = (callback(q) as typeof q) || q;
+			const qb = (callback(q)) || q;
 			const data = await qb;
 			const total = await this.count((qb) => {
 				qb.where(query);
@@ -83,7 +82,6 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 	};
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export function dataWrapTrx<T extends {} = any>(table: () => QueryBuilder<T>, trx: Transaction) {
 	return {
 		/**
