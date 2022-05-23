@@ -40,9 +40,12 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 				});
 			}
 			const query = wrapFilter(filter);
-			const q = tb.where(query)
-				.limit(size)
-				.offset(offset);
+			const q = tb.where(query);
+
+			if (size > 0) {
+				q.limit(size)
+					.offset(offset);
+			}
 			const qb = (callback(q)) || q;
 			const data = (await qb) as T[];
 			const total = await this.count((qb) => {
