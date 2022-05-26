@@ -7,8 +7,11 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 		/**
 		 * 新增
 		 */
-		insert(data: Data | Data[]) {
-			return table().insert(data as any);
+		async insert(data: Data | Data[]) {
+			if (Array.isArray(data) && data.length === 0) {
+				return;
+			}
+			await table().insert(data as any);
 		},
 		/**
 		 * 修改
