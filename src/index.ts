@@ -31,7 +31,7 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 		/**
 		 * 查询列表
 		 */
-		async list(searchFields: Array<keyof T>, keywords: string, page: string | number, pagesize: string | number, filter = {} as Data, callback = ((q) => { return q.select('*'); }) as Callback<T>) {
+		async list(searchFields: Array<keyof T>, keywords: string, page: string | number, pagesize: string | number, filter = {} as Data, callback = ((q) => { return q.select('*'); }) as Callback<T>, whereCallback = ((q) => { return q; }) as Callback<T>) {
 			const size = Number(pagesize);
 			const offset = (Number(page) - 1) * size;
 			const tb = table();
@@ -49,14 +49,16 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 				q.limit(size)
 					.offset(offset);
 			}
-			const qb = (callback(q)) || q;
+			const t = (whereCallback(q) as typeof q) || q;
+			const qb = (callback(t) as typeof t) || t;
 			const data = (await qb) as T[];
 			const total = await this.count((qb) => {
 				qb.where(query);
+				const t = (whereCallback(qb) as typeof qb) || qb;
 				if (!keywords) {
-					return qb;
+					return t;
 				}
-				return qb.andWhere((builder) => {
+				return t.andWhere((builder) => {
 					searchFields.forEach((field) => {
 						builder.orWhere(field as string, 'like', `%${keywords}%`);
 					});
@@ -88,7 +90,14 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 	};
 }
 
+const timeout = 10 * 60 * 1000;	// 默认处理时间不超过10分钟
 export function dataWrapTrx<T extends {} = any>(table: () => QueryBuilder<T>, trx: Transaction) {
+	setTimeout(() => {
+		if (trx.isCompleted()) {
+			return;
+		}
+		trx.rollback('Time out');
+	}, timeout);
 	return {
 		/**
 		 * 获取事务句柄，可以供一同的其它查询共用事务
