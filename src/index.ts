@@ -90,8 +90,7 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 	};
 }
 
-const timeout = 10 * 60 * 1000;	// 默认处理时间不超过10分钟
-export function dataWrapTrx<T extends {} = any>(table: () => QueryBuilder<T>, trx: Transaction) {
+export function dataWrapTrx<T extends {} = any>(table: () => QueryBuilder<T>, trx: Transaction, timeout = 3 * 60 * 1000) {
 	setTimeout(() => {
 		if (trx.isCompleted()) {
 			return;
