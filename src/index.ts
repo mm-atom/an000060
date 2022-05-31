@@ -90,7 +90,7 @@ export default function dataWrap<T extends {} = any>(table: () => QueryBuilder<T
 	};
 }
 
-export function dataWrapTrx<T extends {} = any>(table: () => QueryBuilder<T>, trx: Transaction, timeout = 3 * 60 * 1000) {
+export function dataWrapTrx<T extends {} = any>(table: () => QueryBuilder<T>, trx: Transaction, timeout = 5 * 1000) {
 	setTimeout(() => {
 		if (trx.isCompleted()) {
 			return;
