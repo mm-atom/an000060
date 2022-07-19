@@ -146,9 +146,6 @@ export function tableWrap<T extends {} = any>(table: () => QueryBuilder<T>) {
 		 * 	.orderBy('name', 'asc');
 		 * });
 		 * @example
-		 * 列出姓别为男，并且名字中包含`foo`的第一页数据，最多20条
-		 * .list(['name'], 'foo', 1, 20, {sex: 1});
-		 * @example
 		 * 列出姓名中包含`foo`的全部男性数据,这里页码参数不生效。
 		 * .list(['name'], 'foo', 1, 0, {sex: 1});
 		 * @example
