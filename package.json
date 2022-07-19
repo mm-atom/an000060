@@ -1,6 +1,6 @@
 {
 	"name": "@mmstudio/an000060",
-	"version": "2.1.0",
+	"version": "2.1.1",
 	"description": "数据表操作",
 	"scripts": {
 		"test": "tsc && ava ./tests/*.js",
