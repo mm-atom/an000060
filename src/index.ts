@@ -13,6 +13,7 @@ export default function dataWrap<T extends {} = any>(db: Knex<any, unknown[]>, t
 }
 
 export async function dataWrapTrx<T extends {} = any>(db: Knex<any, unknown[]>, tableName: string, trxOrTimeout?: Transaction | number) {
+	type Data = Partial<T>;
 	const trx = await (async () => {
 		const timeOut = 5000;
 		if (typeof trxOrTimeout === 'undefined' || typeof trxOrTimeout === 'number') {
@@ -42,6 +43,44 @@ export async function dataWrapTrx<T extends {} = any>(db: Knex<any, unknown[]>, 
 				return;
 			}
 			await trx.commit();
+		},
+		/**
+		 * 新增或更新数据记录，支持单条或多条数据
+		 * @example
+		 * .insertOrUpdate({id: '001', name: 'foo'}, 'id');
+		 * @example
+		 * .insertOrUpdate([{id: '001', name: 'foo'},{id: '002', name: 'bar'}], 'id');
+		 */
+		async insertOrUpdate(data: Data | Data[], keyField: keyof Data, ...keyFields: (keyof Data)[]) {
+			const allKeyFields = [keyField, ...keyFields].filter((kf) => {
+				return Boolean(kf);
+			});
+			if (allKeyFields.length === 0) {
+				throw new Error('没有有效的关键字');
+			}
+			if (Array.isArray(data)) {
+				// 为了避免同时插入多条相同的数据，这里按顺序执行，避免异步带来的问题
+				await data.reduce(async (ps, d) => {
+					await ps;
+					await this.insertOrUpdate(d, keyField, ...keyFields);
+				}, Promise.resolve());
+				return;
+			}
+			// Single Data
+			const filter = allKeyFields.reduce((pre, cur) => {
+				const val = data[cur];
+				return {
+					...pre,
+					[cur]: val
+				};
+			}, {} as Data);
+			const field = allKeyFields[0] as string;
+			const row = await this.first(filter).select(field);
+			if (row) {
+				await this.insert(data);
+			} else {
+				await this.update(data, filter);
+			}
 		},
 		/**
 		 * 撤消修改
