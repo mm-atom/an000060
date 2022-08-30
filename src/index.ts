@@ -76,7 +76,7 @@ export async function dataWrapTrx<T extends {} = any>(db: Knex<any, unknown[]>, 
 			}, {} as Data);
 			const field = allKeyFields[0] as string;
 			const row = await this.first(filter).select(field);
-			if (row) {
+			if (!row) {
 				await this.insert(data);
 			} else {
 				await this.update(data, filter);
